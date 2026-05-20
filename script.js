@@ -77,5 +77,41 @@ async function fetchIssues(userInput) {
 
 }
 
+function createCard(issue){
+
+  // create div
+  const card = document.createElement("div");
+
+  // add class
+  card.classList.add("card");
+
+  // labels html
+  let labelsHTML = "";
+
+  issue.labels.forEach(label => {
+    labelsHTML += `
+      <span class="label">${label.name}</span>`;
+  });
+
+  // card html
+  card.innerHTML = `
+    <h3>${issue.title}</h3>
+    <div class="labels">${labelsHTML}</div>
+    <p>Comments: ${issue.comments}</p>`;
+
+  return card;
+
+}
+
+// SHOW LOADING
+function showLoading(){
+  openCards.innerHTML = `
+    <p class="loading"> Loading... </p>`;
+}
+
+// REMOVE LOADING
+function removeLoading(){
+  openCards.innerHTML = "";
+}
 
 
