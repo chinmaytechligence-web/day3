@@ -84,3 +84,9 @@ h1{
   }
 
 }
+
+#errorMessage{
+  color:red;
+  margin-bottom:20px;
+  font-size:18px;
+}

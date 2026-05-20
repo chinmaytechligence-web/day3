@@ -88,7 +88,13 @@ async function fetchIssues(userInput) {
     }
     
   } catch (error) {
-    console.log(error);
+    removeLoading();
+
+    if(error.message === "Failed to fetch"){
+    errorMessage.textContent ="Check your internet connection";}
+    
+    else {
+    errorMessage.textContent = error.message;}
   }
 
 }
