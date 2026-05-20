@@ -39,8 +39,7 @@ async function fetchIssues(userInput) {
     // if searched by owner and repo name
     else {
       [owner, repo] = userInput.split("/");
-
-    
+    }
     const repoURL =`https://api.github.com/repos/${owner}/${repo}`;
     const issuesURL =`https://api.github.com/repos/${owner}/${repo}/issues`;
 
@@ -66,10 +65,13 @@ async function fetchIssues(userInput) {
     const repoData = await repoResponse.json();
     const issues = await issuesResponse.json();
 
-    //clearing previous cards 
-    openCard.innerHTML = "";
-    closedCard.innerHTML = "";
+    removeLoading();
+    showRepoInfo(repoData);
 
+    //clearing previous cards 
+    openCards.innerHTML = "";
+    closedCards.innerHTML = "";
+    
     //loop through issue data 
     issues.forEach(issue => {
       
@@ -83,19 +85,17 @@ async function fetchIssues(userInput) {
       const card = createCard(issue);
 
       if (issue.state === "open") {
-        openCard.append(card);
+        openCards.append(card);
       }
 
       else {
-        closedCard.append(card);
+        closedCards.append(card);
       }
 
     });
-    }
     
   } catch (error) {
     removeLoading();
-    showRepoInfo(repoData);
 
     if(error.message === "Failed to fetch"){
     errorMessage.textContent ="Check your internet connection";}
@@ -165,13 +165,18 @@ columns.forEach(column => {
 
   // HANDLE DROP
   column.addEventListener("drop", () => {
-    // currently dragged card
-    const draggingCard = document.querySelector(".dragging");
-    
-    // append into cards container
-    column.querySelector(".cards").appendChild(draggingCard);
-  
-  });
+  // currently dragged card
+  const draggingCard =
+    document.querySelector(".dragging");
+  // safety check
+  if(!draggingCard){
+    return;
+  }
+  // append into cards container
+  column.querySelector(".cards")
+    .appendChild(draggingCard);
+
+});
 });
 
 
@@ -184,6 +189,8 @@ function showLoading(){
 // REMOVE LOADING
 function removeLoading(){
   openCards.innerHTML = "";
+  reviewCards.innerHTML = "";
+  closedCards.innerHTML = "";
 }
 
 
