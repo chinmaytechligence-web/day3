@@ -3,7 +3,7 @@ const searchbtn = document.getElementById("search-btn");
 const openCard = document.getElementById("open-Cards");
 const reviewCard = document.getElementById("review-Cards");
 const closedCard = document.getElementById("closed-Cards");
-
+const errorMessage = document.getElementById("errorMessage");
 
 searchbtn.addEventListener("click", () => {
   const userInput = repoInput.ariaValueMax.trim();
@@ -19,7 +19,8 @@ searchbtn.addEventListener("click", () => {
 
 async function fetchIssues(userInput) {
   try {
-    
+    showLoading();
+    errorMessage.textContent = "";
     let owner;
     let repo;
 
@@ -40,6 +41,21 @@ async function fetchIssues(userInput) {
 
     // get data
     const response = await fetch(url);
+    
+    // 404 ERROR
+    if(response.status === 404){
+      throw new Error("Repo not found");
+    }
+
+    // 403 ERROR
+    if(response.status === 403){
+      throw new Error("Too many requests. Try later.");
+    }
+
+    // OTHER ERRORS
+    if(!response.ok){
+      throw new Error("Something went wrong");
+    }
 
     //get json response
     const issues = await response.json();
