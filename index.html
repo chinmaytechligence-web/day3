@@ -14,8 +14,8 @@
     <h1>GitHub Issue Tracker</h1>  
 
     <div class="search-container">
-      <input type="text" placeholder="Search using keywords">
-      <button class="search-btn">Search</button>
+      <input id ="repo-input" type="text" placeholder="Search repo eg(:facebook/react)">
+      <button id="search-btn">Search</button>
     </div>
   </header>
 
@@ -26,14 +26,14 @@
 
     <section class="column">
       <h2>Open</h2>
-      <div class="card"></div>
+      <div class="card" id="open-Cards"></div>
     </section>
 
     <!-- section 2 = reviwed issues -->
 
     <section class="column">
       <h2>Reviwed</h2>
-      <div class="card"></div>
+      <div class="card" id="review-Cards"></div>
     </section>
 
 
@@ -41,10 +41,10 @@
 
     <section class="column">
       <h2>Closed</h2>
-      <div class="card"></div>
+      <div class="card" id="closed-Cards"></div>
     </section>
 
-    
+
   </main>
 
   <script src="script.js"></script>
