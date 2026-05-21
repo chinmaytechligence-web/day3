@@ -47,7 +47,7 @@ async function fetchIssues(userInput) {
       [owner, repo] = userInput.split("/");
     }
     const repoURL =`https://api.github.com/repos/${owner}/${repo}`;
-    const issuesURL =`https://api.github.com/repos/${owner}/${repo}/issues`;
+    const issuesURL =`https://api.github.com/repos/${owner}/${repo}/issues?state=all`;;
 
     // get data
     const [repoResponse, issuesResponse] =await Promise.all([fetch(repoURL),fetch(issuesURL)]);
