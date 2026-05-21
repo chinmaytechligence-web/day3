@@ -9,6 +9,12 @@ const openColumn =document.getElementById("openColumn");
 const reviewColumn =document.getElementById("reviewColumn");
 const closedColumn = document.getElementById("closedColumn");
 
+const keywordFilter=document.getElementById("keywordFilter");
+const labelFilter=document.getElementById("labelFilter");
+const assigneeFilter=document.getElementById("assigneeFilter");
+
+let allIssues = [];
+
 searchbtn.addEventListener("click", () => {
   const userInput = repoInput.value.trim();
 
@@ -65,41 +71,23 @@ async function fetchIssues(userInput) {
     const repoData = await repoResponse.json();
     const issues = await issuesResponse.json();
 
+    allIssues = issues.filter(issue =>!issue.pull_request);
+
     removeLoading();
     showRepoInfo(repoData);
 
     //clearing previous cards 
     openCards.innerHTML = "";
     closedCards.innerHTML = "";
-    
-    //loop through issue data 
-    issues.forEach(issue => {
-      
-      //skip pull req
-      if (issue.pull_request) {
-        return
-      }
+  
+    renderIssues(issues);
 
-      //creating card 
+    populateFilters(issues);
 
-      const card = createCard(issue);
-
-      if (issue.state === "open") {
-        openCards.append(card);
-      }
-
-      else {
-        closedCards.append(card);
-      }
-
-    });
-    
   } catch (error) {
     removeLoading();
-
     if(error.message === "Failed to fetch"){
     errorMessage.textContent ="Check your internet connection";}
-    
     else {
     errorMessage.textContent = error.message;}
   }
@@ -114,6 +102,51 @@ function showRepoInfo(repo){
     <p>Stars: ${repo.stargazers_count}</p>
     <p>🍴 Forks: ${repo.forks_count}</p>`;
 }
+function renderIssues(issues){
+  // clear board
+  openCards.innerHTML = "";
+  reviewCards.innerHTML = "";
+  closedCards.innerHTML = "";
+
+  issues.forEach(issue => {
+    // skip PRs
+    if(issue.pull_request){
+      return;
+    }
+    const card = createCard(issue);
+
+    if(issue.state === "open"){
+      openCards.append(card);
+    }
+    else{
+      closedCards.append(card);
+    }
+  });
+}
+function populateFilters(issues){
+      const labelsSet = new Set();
+      const assigneeSet = new Set();
+      issues.forEach(issue => {
+        issue.labels.forEach(label => {
+          labelsSet.add(label.name);
+        });
+
+        if(issue.assignee){
+          assigneeSet.add(issue.assignee.login);
+        }
+      });
+      // reset options
+      labelFilter.innerHTML =`<option value="">All Labels</option>`;
+      assigneeFilter.innerHTML =`<option value="">All Assignees</option>`;
+
+      // labels
+      labelsSet.forEach(label => {labelFilter.innerHTML += `<option value="${label}">${label}</option>`;});
+
+      // assignees
+      assigneeSet.forEach(assignee => {
+        assigneeFilter.innerHTML += `<option value="${assignee}">${assignee}</option>`;});
+}
+    
 
 function createCard(issue){
 
@@ -166,8 +199,8 @@ columns.forEach(column => {
   // HANDLE DROP
   column.addEventListener("drop", () => {
   // currently dragged card
-  const draggingCard =
-    document.querySelector(".dragging");
+  const draggingCard = document.querySelector(".dragging");
+    
   // safety check
   if(!draggingCard){
     return;
@@ -175,10 +208,23 @@ columns.forEach(column => {
   // append into cards container
   column.querySelector(".cards")
     .appendChild(draggingCard);
-
 });
 });
 
+keywordFilter.addEventListener(
+  "input",
+  applyFilters
+);
+
+labelFilter.addEventListener(
+  "change",
+  applyFilters
+);
+
+assigneeFilter.addEventListener(
+  "change",
+  applyFilters
+);
 
 // SHOW LOADING
 function showLoading(){
@@ -191,6 +237,41 @@ function removeLoading(){
   openCards.innerHTML = "";
   reviewCards.innerHTML = "";
   closedCards.innerHTML = "";
+}
+
+function applyFilters(){
+
+  const keyword=keywordFilter.value.toLowerCase();
+  const selectedLabel =labelFilter.value;
+  const selectedAssignee=assigneeFilter.value;
+
+  const filteredIssues =
+    allIssues.filter(issue => {
+      // keyword match
+      const matchesKeyword =
+        issue.title.toLowerCase()
+          .includes(keyword);
+      // label match
+      const matchesLabel =
+        !selectedLabel ||
+        issue.labels.some(label =>
+          label.name === selectedLabel
+        );
+      // assignee match
+      const matchesAssignee =
+        !selectedAssignee ||
+        (
+          issue.assignee &&
+          issue.assignee.login === selectedAssignee
+        );
+      return (
+        matchesKeyword &&
+        matchesLabel &&
+        matchesAssignee
+      );
+    });
+  renderIssues(filteredIssues);
+
 }
 
 
